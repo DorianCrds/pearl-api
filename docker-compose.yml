@@ -1,0 +1,30 @@
+version: "3.9"  # Compose file version (modern recommended version)
+
+services:
+  api:
+    build: .
+    ports:
+      - "4000:4000"  # Expose API port
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+    volumes:
+      - .:/app           # Mount local code for hot reload
+      - /app/node_modules # Keep node_modules inside container
+    depends_on:
+      - db
+    command: npm run dev  # Use ts-node-dev for live reload
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port
+    environment:
+      POSTGRES_USER: pearl_user
+      POSTGRES_PASSWORD: pearl_password
+      POSTGRES_DB: pearl_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Persist database data
+
+volumes:
+  pgdata:
