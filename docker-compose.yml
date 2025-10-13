@@ -9,6 +9,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 4000
+      TS_NODE_DEV: "--poll"
     volumes:
       - .:/app           # Mount local code for hot reload
       - /app/node_modules # Keep node_modules inside container
