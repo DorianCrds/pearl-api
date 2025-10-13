@@ -12,4 +12,8 @@ export const ENV = {
     DB_USER: process.env.DB_USER || 'pearl_user',
     DB_PASSWORD: process.env.DB_PASSWORD || 'pearl_password',
     DB_NAME: process.env.DB_NAME || 'pearl_db',
+
+    // Token / JWT
+    JWT_SECRET: process.env.JWT_SECRET || 'pearl_secret',
+    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1d',
 };
