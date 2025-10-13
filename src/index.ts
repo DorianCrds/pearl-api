@@ -4,6 +4,7 @@ import { ENV } from './config/env';
 // @ts-ignore
 import { seedRoles } from '../prisma/seedRoles'
 import roleRoutes from "./routes/roleRoutes";
+import userRouter from "./routes/userRoutes";
 
 const app = express();
 app.use(express.json());
@@ -26,3 +27,4 @@ seedRoles()
     });
 
 app.use('/api/v1/roles', roleRoutes);
+app.use('/api/v1/users', userRouter);
