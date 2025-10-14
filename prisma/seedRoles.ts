@@ -4,21 +4,20 @@ const prisma = new PrismaClient();
 
 export async function seedRoles() {
     try {
-        // @ts-ignore
-        const tableCheck = await prisma.$queryRawUnsafe<{ exists: boolean }[]>(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'Role'
-      );
-    `);
+        const tableCheck = await prisma.$queryRawUnsafe(`
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = 'Role'
+            );
+        `) as { exists: boolean }[];
 
         if (!tableCheck[0]?.exists) {
             console.warn('⚠️ Table "Role" does not exist yet. Skipping seeding.');
             return;
         }
 
-        const roles = ['ADMIN', 'USER'];
+        const roles = ['ADMIN', 'USER', 'CONSUMER'];
         for (const role of roles) {
             await prisma.role.upsert({
                 where: { name: role },

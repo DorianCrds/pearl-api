@@ -2,16 +2,17 @@
 import { Router } from 'express';
 import { roleController } from '../controllers/roleController';
 import { authenticate } from '../middlewares/authMiddleware';
+import { authorizeRoles } from '../middlewares/authorizeRoles';
 
 const roleRouter = Router();
 
-// Public route
+// Public routes
 roleRouter.get('/', roleController.getAllRoles);
 roleRouter.get('/:id', roleController.getRoleById);
 
-// Protected routes (require auth)
-roleRouter.post('/', authenticate, roleController.createRole);
-roleRouter.put('/:id', authenticate, roleController.updateRole);
-roleRouter.delete('/:id', authenticate, roleController.deleteRole);
+// Protected routes
+roleRouter.post('/', authenticate, authorizeRoles('ADMIN'), roleController.createRole);
+roleRouter.put('/:id', authenticate, authorizeRoles('ADMIN'), roleController.updateRole);
+roleRouter.delete('/:id', authenticate, authorizeRoles('ADMIN'), roleController.deleteRole);
 
 export default roleRouter;

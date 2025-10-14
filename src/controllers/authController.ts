@@ -19,12 +19,12 @@ export const authController = {
 
     async register(req: Request, res: Response) {
         try {
-            const { email, password, name, roleId } = req.body;
-            if (!email || !password || !roleId) {
-                return res.status(400).json({ message: 'Email, password, and roleId are required' });
+            const { email, password, name } = req.body;
+            if (!email || !password) {
+                return res.status(400).json({ message: 'Email and password are required' });
             }
 
-            const result = await authService.register({ email, password, name, roleId });
+            const result = await authService.register({ email, password, name });
             res.status(201).json({ message: 'User registered successfully', ...result });
         } catch (error: any) {
             res.status(400).json({ message: error.message });
