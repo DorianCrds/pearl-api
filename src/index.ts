@@ -5,6 +5,7 @@ import { ENV } from './config/env';
 import { seedRoles } from '../prisma/seedRoles'
 import roleRoutes from "./routes/roleRoutes";
 import userRouter from "./routes/userRoutes";
+import authRouter from "./routes/authRoutes";
 
 const app = express();
 app.use(express.json());
@@ -28,3 +29,4 @@ seedRoles()
 
 app.use('/api/v1/roles', roleRoutes);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/auth', authRouter);

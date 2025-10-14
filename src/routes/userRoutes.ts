@@ -1,7 +1,7 @@
 // src/routes/userRoutes.ts
 import express from 'express';
 import { userController } from '../controllers/userController';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { authenticate } from '../middlewares/authMiddleware';
 
 const userRouter = express.Router();
 
@@ -9,9 +9,9 @@ const userRouter = express.Router();
 userRouter.post('/', userController.createUser);
 
 // Protected routes (require auth)
-userRouter.get('/', authMiddleware, userController.getAllUsers);
-userRouter.get('/:id', authMiddleware, userController.getUserById);
-userRouter.put('/:id', authMiddleware, userController.updateUser);
-userRouter.delete('/:id', authMiddleware, userController.deleteUser);
+userRouter.get('/', authenticate, userController.getAllUsers);
+userRouter.get('/:id', authenticate, userController.getUserById);
+userRouter.put('/:id', authenticate, userController.updateUser);
+userRouter.delete('/:id', authenticate, userController.deleteUser);
 
 export default userRouter;
