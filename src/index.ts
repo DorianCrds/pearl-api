@@ -5,9 +5,6 @@ import { ENV } from './config/env';
 import { seedRoles } from '../prisma/seedRoles';
 // @ts-ignore
 import { seedUsers } from '../prisma/seedUsers';
-import roleRoutes from "./routes/roleRoutes";
-import userRouter from "./routes/userRoutes";
-import authRouter from "./routes/authRoutes";
 
 
 (async () => {
@@ -23,7 +20,3 @@ import authRouter from "./routes/authRoutes";
         process.exit(1);
     }
 })();
-
-app.use('/api/v1/roles', roleRoutes);
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/auth', authRouter);
