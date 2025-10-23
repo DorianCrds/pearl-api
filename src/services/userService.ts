@@ -1,8 +1,6 @@
 // src/services/userService.ts
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
 
 export const userService = {
     async getAllUsers() {

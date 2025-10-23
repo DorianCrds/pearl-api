@@ -1,12 +1,10 @@
 // src/services/authService.ts
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { ENV } from '../config/env';
 import { Response } from 'express';
-
-const prisma = new PrismaClient();
 
 const ACCESS_TOKEN_EXPIRES_IN = ENV.JWT_EXPIRES_IN || '15m';
 const REFRESH_TOKEN_EXPIRES_DAYS = 7;
