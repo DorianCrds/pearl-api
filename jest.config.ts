@@ -8,6 +8,7 @@ const config: Config = {
     moduleFileExtensions: ['ts', 'js', 'json'],
     clearMocks: true,
     coverageDirectory: 'coverage',
+    globalSetup: '<rootDir>/tests/helpers/setupTestDB.ts',
 };
 
 export default config;
