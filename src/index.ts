@@ -1,6 +1,5 @@
 // src/index.ts
-import express from 'express';
-import cookieParser from 'cookie-parser';
+import app from './app';
 import { ENV } from './config/env';
 // @ts-ignore
 import { seedRoles } from '../prisma/seedRoles';
@@ -10,14 +9,6 @@ import roleRoutes from "./routes/roleRoutes";
 import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
 
-const app = express();
-app.use(express.json());
-app.use(cookieParser());
-
-// Health check
-app.get('/health', (_, res) => {
-    res.status(200).json({ status: 'ok', environment: ENV.NODE_ENV });
-});
 
 (async () => {
     try {

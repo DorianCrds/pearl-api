@@ -8,7 +8,7 @@
     "target": "ES2020",
     "module": "CommonJS",
     "lib": ["esnext"],
-    "types": ["node"],
+    "types": ["jest", "node"],
 
     /* === Output === */
     "sourceMap": true,
@@ -28,6 +28,6 @@
     /* === Performance === */
     "skipLibCheck": true
   },
-  "include": ["src"],
+  "include": ["src", "tests"],
   "exclude": ["node_modules", "dist"]
 }

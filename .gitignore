@@ -22,3 +22,6 @@ yarn-error.log*
 Thumbs.db
 
 /src/generated/prisma
+
+# Tests / Coverage
+coverage/
