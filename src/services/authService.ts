@@ -33,8 +33,8 @@ async function storeRefreshToken(userId: number, token: string, ip?: string, use
             userId,
             tokenHash,
             expiresAt,
-            ipAddress: ip,
-            userAgent,
+            ipAddress: ip ?? null,
+            userAgent: userAgent ?? null,
         },
     });
 }
@@ -61,7 +61,7 @@ export const authService = {
             data: {
                 email: data.email,
                 password: hashedPassword,
-                name: data.name,
+                name: data.name ?? null,
                 roleId: consumerRole.id,
             },
         });
@@ -86,8 +86,9 @@ export const authService = {
         const accessToken = generateAccessToken({
             id: user.id,
             email: user.email,
-            role: user.role?.name,
+            ...(user.role?.name ? { role: user.role.name } : {}),
         });
+
         const refreshToken = generateRefreshToken();
         await storeRefreshToken(user.id, refreshToken, ip, userAgent);
 
@@ -135,7 +136,7 @@ export const authService = {
         const newAccessToken = generateAccessToken({
             id: user.id,
             email: user.email,
-            role: user.role?.name,
+            ...(user.role?.name ? { role: user.role.name } : {}),
         });
 
         res.cookie('refreshToken', newRefresh, {
