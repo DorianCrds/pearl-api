@@ -9,6 +9,17 @@ const config: Config = {
     clearMocks: true,
     coverageDirectory: 'coverage',
     globalSetup: '<rootDir>/tests/helpers/setupTestDB.ts',
+
+    maxWorkers: 1,
+
+    silent: true,
+    verbose: false,
+
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        '/dist/',
+        '/coverage/'
+    ],
 };
 
 export default config;
