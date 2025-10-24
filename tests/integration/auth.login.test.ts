@@ -3,16 +3,15 @@ import request from 'supertest';
 import app from '../../src/app';
 import { prisma } from '../../src/lib/prisma';
 import bcrypt from 'bcrypt';
+import { resetDatabase } from '../helpers/resetDatabase';
 
 beforeEach(async () => {
-    await prisma.refreshToken.deleteMany();
-    await prisma.user.deleteMany();
+    await resetDatabase();
 
     const consumerRole = await prisma.role.findUnique({ where: { name: 'CONSUMER' } });
     if (!consumerRole) throw new Error('Role CONSUMER not found for tests');
 
     const hashedPassword = await bcrypt.hash('TestPassword123!', 10);
-
     await prisma.user.create({
         data: {
             email: 'loginuser@example.com',
@@ -24,8 +23,6 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-    await prisma.refreshToken.deleteMany();
-    await prisma.user.deleteMany();
     await prisma.$disconnect();
 });
 

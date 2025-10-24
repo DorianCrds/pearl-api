@@ -2,34 +2,48 @@
 import request from 'supertest';
 import app from '../../src/app';
 import { prisma } from '../../src/lib/prisma';
+import bcrypt from 'bcrypt';
+import { resetDatabase } from '../helpers/resetDatabase';
 
 describe('POST /api/v1/auth/refresh', () => {
     let refreshToken: string;
+    let userId: number;
 
     beforeAll(async () => {
-        await prisma.refreshToken.deleteMany();
-        await prisma.user.deleteMany();
+        await resetDatabase();
 
         const consumerRole = await prisma.role.findUnique({ where: { name: 'CONSUMER' } });
+        if (!consumerRole) throw new Error('Default role CONSUMER not found');
+
+        const hashedPassword = await bcrypt.hash('password123', 10);
         const user = await prisma.user.create({
             data: {
                 email: 'refreshuser@example.com',
-                password: await import('bcrypt').then(bcrypt => bcrypt.hash('password123', 10)),
+                password: hashedPassword,
                 name: 'Refresh Test',
-                roleId: consumerRole?.id ||null,
+                roleId: consumerRole.id,
             },
         });
+
+        userId = user.id;
 
         const loginRes = await request(app)
             .post('/api/v1/auth/login')
             .send({ email: user.email, password: 'password123' });
 
         const rawCookies = loginRes.headers['set-cookie'];
-        const cookies = Array.isArray(rawCookies) ? rawCookies : rawCookies ? [rawCookies] : [];
+        const cookies: string[] = Array.isArray(rawCookies) ? rawCookies : rawCookies ? [rawCookies] : [];
         const refreshCookie = cookies.find((c) => c.startsWith('refreshToken='));
-        expect(refreshCookie).toBeDefined();
+        if (!refreshCookie) throw new Error('Refresh token cookie not found');
 
-        refreshToken = refreshCookie!.split('=')[1].split(';')[0];
+        const tokenPart = refreshCookie.split('=')[1]?.split(';')[0];
+        if (!tokenPart) throw new Error('Could not extract refresh token');
+
+        refreshToken = tokenPart;
+    });
+
+    afterAll(async () => {
+        await prisma.$disconnect();
     });
 
     it('Should refresh tokens successfully with a valid refresh token', async () => {
@@ -44,7 +58,10 @@ describe('POST /api/v1/auth/refresh', () => {
     });
 
     it('Should return 401 if no refresh token is provided', async () => {
-        const res = await request(app).post('/api/v1/auth/refresh').send();
+        const res = await request(app)
+            .post('/api/v1/auth/refresh')
+            .send();
+
         expect(res.status).toBe(401);
         expect(res.body).toHaveProperty('message', 'No refresh token provided');
     });

@@ -1,18 +1,12 @@
 // tests/integration/auth.register.test.ts
-
-import {prisma} from "../../src/lib/prisma";
+import { prisma } from "../../src/lib/prisma";
 import request from "supertest";
 import app from "../../src/app";
+import { resetDatabase } from "../helpers/resetDatabase";
 
 describe('POST /api/v1/auth/register', () => {
-    beforeAll(async () => {
-        await prisma.refreshToken.deleteMany();
-        await prisma.user.deleteMany();
-
-        const consumerRole = await prisma.role.findUnique({ where: { name: 'CONSUMER' } });
-        if (!consumerRole) {
-            throw new Error('Missing required role: CONSUMER. Please run seedRoles() before tests.');
-        }
+    beforeEach(async () => {
+        await resetDatabase();
     });
 
     afterAll(async () => {
@@ -33,13 +27,19 @@ describe('POST /api/v1/auth/register', () => {
     });
 
     it('Should not register a user with an existing email', async () => {
+        await request(app).post('/api/v1/auth/register').send({
+            email: 'testuser@example.com',
+            password: 'Password123!',
+            name: 'Test User',
+        });
+
         const res = await request(app).post('/api/v1/auth/register').send({
             email: 'testuser@example.com',
             password: 'Password123!',
         });
 
         expect(res.status).toBe(400);
-        expect(res.body).toMatchObject(/already exists/i);
+        expect(res.body.message).toMatch(/already exists/i);
     });
 
     it('Should return 400 if email or password is missing', async () => {
@@ -48,5 +48,5 @@ describe('POST /api/v1/auth/register', () => {
         });
 
         expect(res.status).toBe(400);
-    })
-})
+    });
+});
