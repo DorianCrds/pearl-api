@@ -5,10 +5,12 @@ import { ENV } from './config/env';
 import roleRoutes from "./routes/roleRoutes";
 import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
+import {errorHandler} from "./middlewares/errorHandler";
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(errorHandler);
 
 // Health check
 app.get('/health', (_, res) => {
