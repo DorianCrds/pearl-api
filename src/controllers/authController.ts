@@ -2,46 +2,80 @@
 import { Request, Response } from 'express';
 import { authService } from '../services/authService';
 import {asyncHandler} from "../utils/asyncHandlers";
+import {BadRequestError} from "../errors";
+import {ENV} from "../config/env";
+
+const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
 export const authController = {
     login: asyncHandler(async (req: Request, res: Response) => {
         const { email, password } = req.body;
-        if (!email || !password) {
-            const err = new Error('Email and password required');
-            (err as any).status = 400;
-            throw err;
-        }
+        if (!email || !password) throw new BadRequestError('Email and password required');
 
-        const result = await authService.login(email, password, res, req.ip, req.headers['user-agent']);
-        res.json({ message: 'Login successful', accessToken: result.accessToken, user: result.user });
+        const { accessToken, refreshToken, user } = await authService.login(
+            email,
+            password,
+            req.ip,
+            req.headers['user-agent']
+        );
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: ENV.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: REFRESH_TOKEN_MAX_AGE,
+        });
+
+        res.status(200).json({
+            message: 'Login successful',
+            accessToken,
+            user,
+        });
     }),
 
     register: asyncHandler(async (req: Request, res: Response) => {
         const { email, password, name } = req.body;
         if (!email || !password) {
-            const err = new Error('Email and password required');
-            (err as any).status = 400;
-            throw err;
+            throw new BadRequestError('Email and password are required');
         }
 
-        const result = await authService.register({ email, password, name });
+        const { accessToken, refreshToken, user } = await authService.register({
+            email,
+            password,
+            name,
+        });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: ENV.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: REFRESH_TOKEN_MAX_AGE,
+        });
+
         res.status(201).json({
             message: 'User registered successfully',
-            accessToken: result.accessToken,
-            user: result.user,
+            accessToken,
+            user,
         });
     }),
 
     refresh: asyncHandler(async (req: Request, res: Response) => {
-        const refreshToken = req.cookies.refreshToken;
-        if (!refreshToken) {
-            const err = new Error('No refresh token provided');
-            (err as any).status = 400;
-            throw err;
-        }
+        const oldToken = req.cookies.refreshToken;
+        if (!oldToken) throw new BadRequestError('No refresh token provided');
 
-        const result = await authService.refreshTokens(refreshToken, res);
-        res.json({ message: 'Token refreshed', accessToken: result.accessToken });
+        const { accessToken, refreshToken: newToken } = await authService.refreshTokens(oldToken);
+
+        res.cookie('refreshToken', newToken, {
+            httpOnly: true,
+            secure: ENV.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: REFRESH_TOKEN_MAX_AGE,
+        });
+
+        res.status(200).json({
+            message: 'Token refreshed',
+            accessToken,
+        });
     }),
 
     logout: asyncHandler(async (req: Request, res: Response) => {
@@ -50,7 +84,7 @@ export const authController = {
 
         res.clearCookie('refreshToken', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: ENV.NODE_ENV === 'production',
             sameSite: 'strict',
         });
 
