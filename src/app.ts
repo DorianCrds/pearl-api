@@ -10,7 +10,6 @@ import {errorHandler} from "./middlewares/errorHandler";
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-app.use(errorHandler);
 
 // Health check
 app.get('/health', (_, res) => {
@@ -20,5 +19,7 @@ app.get('/health', (_, res) => {
 app.use('/api/v1/roles', roleRoutes);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
+
+app.use(errorHandler);
 
 export default app;
