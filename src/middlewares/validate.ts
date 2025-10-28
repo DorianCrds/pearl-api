@@ -1,6 +1,7 @@
 // src/middlewares/validate.ts
 import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
+import { BadRequestError } from "../errors";
 
 export const validate =
     <T extends z.ZodTypeAny>(schema: T) =>
@@ -8,12 +9,12 @@ export const validate =
             const result = schema.safeParse(req.body);
 
             if (!result.success) {
-                const errors = result.error.issues.map((err) => ({
+                const details = result.error.issues.map((err) => ({
                     path: err.path.join("."),
                     message: err.message,
                 }));
 
-                return res.status(400).json({ errors });
+                return next(new BadRequestError("Invalid request body", details));
             }
 
             req.body = result.data as z.infer<T>;
